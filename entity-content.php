@@ -27,38 +27,40 @@ function rebuildMenu($tree) {
   $menu = [];
   $menu_link = [];
   foreach ($tree as $key => $element) {
-    // Extract the details for this item.
-    $title = $element->link->getTitle();
-    if ($element->link->getUrlObject()->isRouted()) {
-      $url = Url::fromRoute(
-        $element->link->getRouteName(),
-        $element->link->getRouteParameters(),
-        $element->link->getOptions()
-      )->toString();
-    }
-    else {
-      $url = Url::fromUri($element->link->getUrlObject()->getUri())->toString();
-    }
-    $link_attributes = (isset($element->link->getPluginDefinition()['options']['attributes']) ?
-      $element->link->getPluginDefinition()['options']['attributes'] :
-      []);
-
-    $menu_link = [
-      'title' => $title,
-      'url' => $url,
-      'attributes' => $link_attributes,
-    ];
-
-    if ($element->hasChildren && null !== $element->link && !$element->link instanceof InaccessibleMenuLink) {
-      $menu_tree = \Drupal::menuTree();
-      $parameters = new MenuTreeParameters();
-      $parameters->setRoot($element->link->getPluginId())->excludeRoot()->setMaxDepth(1)->onlyEnabledLinks();
-      $subtree = $menu_tree->load(NULL, $parameters);
-      if ($subtree) {
-        $menu_link['children'] = expandAll($subtree);
+    if ($element->link->isEnabled()) {
+      // Extract the details for this item.
+      $title = $element->link->getTitle();
+      if ($element->link->getUrlObject()->isRouted()) {
+        $url = Url::fromRoute(
+          $element->link->getRouteName(),
+          $element->link->getRouteParameters(),
+          $element->link->getOptions()
+        )->toString();
       }
+      else {
+        $url = Url::fromUri($element->link->getUrlObject()->getUri())->toString();
+      }
+      $link_attributes = (isset($element->link->getPluginDefinition()['options']['attributes']) ?
+        $element->link->getPluginDefinition()['options']['attributes'] :
+        []);
+
+      $menu_link = [
+        'title' => $title,
+        'url' => $url,
+        'attributes' => $link_attributes,
+      ];
+
+      if ($element->hasChildren && null !== $element->link && !$element->link instanceof InaccessibleMenuLink) {
+        $menu_tree = \Drupal::menuTree();
+        $parameters = new MenuTreeParameters();
+        $parameters->setRoot($element->link->getPluginId())->excludeRoot()->setMaxDepth(1)->onlyEnabledLinks();
+        $subtree = $menu_tree->load(NULL, $parameters);
+        if ($subtree) {
+          $menu_link['children'] = expandAll($subtree);
+        }
+      }
+      array_push($menu, $menu_link);
     }
-    array_push($menu, $menu_link);
   }
   return $menu;
 }
