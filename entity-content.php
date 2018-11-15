@@ -23,6 +23,17 @@ if (is_object($view) && !empty($view_parameter)) {
 }
 
 // REBUILD MENU (MENU TREE) INTO AN ASSOCIATIVE ARRAY
+$menu_links = [];
+$menu_tree = \Drupal::menuTree();
+$parameters = $menu_tree->getCurrentRouteMenuTreeParameters('MENU_TO_LOAD');
+$tree = $menu_tree->load('MENU_TO_LOAD', $parameters);
+$manipulators = [
+  ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+  ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+];
+$tree = $menu_tree->transform($tree, $manipulators);
+$rebuilt_menu = rebuildMenu($tree);
+
 function rebuildMenu($tree) {
   $menu = [];
   $menu_link = [];
