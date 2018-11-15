@@ -1,3 +1,5 @@
+<?php
+
 // EXTRACT CONTENT OF TEXT FIELD
 if ($entity->hasField('field_text') && !$entity->get('field_text')->isEmpty()) {
   // FORMATED SINGLE AND MULTIPLE
